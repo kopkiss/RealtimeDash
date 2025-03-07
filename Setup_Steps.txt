@@ -1,0 +1,20 @@
+Step 1: Install dependencies
+- Install FastAPI, Uvicorn, and Websockets by running:
+    pip install -r requirements.txt
+
+Step 2: Running the Redis server 
+- folder: Redis-x64
+- running: redis-server.exe
+
+Step 3: Run FastAPI Application
+- Run the FastAPI server by using the following command:
+    	uvicorn main:app --host 0.0.0.0 --port 8000
+- The server will now be accessible on your local network via: http://<your_ip_address>:8000
+
+Step 4: Running the file: sim_ESP32.py by using the following command:
+	python sim_ESP32.py
+
+Step 5: Running dashboard.html
+
+
+

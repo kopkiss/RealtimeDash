@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Realtime Dashboard</title>
+        <style>
+            canvas {
+                width: 70% !important;
+                height: 70% !important;
+                max-width: 800px;
+                max-height: 500px;
+            }
+        </style>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+<body>
+    <h1>Realtime Sensor Dashboard</h1>
+    <h2>Value: <span id="value">Waiting...</span></h2>
+    <canvas id="realtimeChart"></canvas>
+
+    <script>
+        let ws = new WebSocket("ws://127.0.0.1:8000/ws");
+
+        let ctx = document.getElementById("realtimeChart").getContext("2d");
+
+        let chart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Sensor Value",
+                    data: [],
+                    borderColor: "blue",
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: "Time" } },
+                    y: { title: { display: true, text: "Value" }, min: 0, max: 20 }
+                }
+            }
+        });
+
+        ws.onmessage = function(event) {
+            let data = JSON.parse(event.data);
+            let now = new Date().toLocaleTimeString();
+
+            // อัปเดตค่าที่หน้าเว็บ
+            document.getElementById("value").innerText = data.value;
+
+            // อัปเดตค่าลงกราฟ
+            chart.data.labels.push(now);
+            chart.data.datasets[0].data.push(data.value);
+
+            // จำกัดข้อมูลไม่ให้ยาวเกินไป (แสดงแค่ 10 ค่า)
+            if (chart.data.labels.length > 10) {
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+            }
+
+            chart.update();
+        };
+
+        ws.onopen = function() {
+            console.log("WebSocket Connected!");
+        };
+
+        ws.onclose = function() {
+            console.log("WebSocket Disconnected!");
+        };
+    </script>
+</body>
+</html>
